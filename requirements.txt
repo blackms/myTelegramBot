@@ -1,3 +1,4 @@
 python-whois
 python-telegram-bot
 pluginbase
+python-nmap
