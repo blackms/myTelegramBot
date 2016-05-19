@@ -2,20 +2,24 @@ import whois
 from telegram.ext import CommandHandler
 
 
-def whois_hndlr(bot, update, args):
-    chat_id = update.message.chat_id
-    domain = ""
-    if len(args) > 0:
-        domain = args[0]
-    else:
-        bot.sendMessage(chat_id, text="Specify the domain or the IP to search.")
+class WhoisPlugin(object):
+    def __init__(self, dispatcher):
+        self.dispatcher = dispatcher
 
-    w = whois.whois(domain)
-    if len(w.text) == 0:
-        bot.sendMessage(chat_id, text="Sorry, I can't retrieve whois information about: {}.".format(domain))
-        return
-    bot.sendMessage(chat_id, text='Whois: {}'.format(w.text))
+    @staticmethod
+    def whois_handler(bot, update, args):
+        chat_id = update.message.chat_id
+        domain = args[0] if len(args) > 0 else None
+
+        whois_response = whois.whois(domain) if whois.whois(domain) else None
+        if whois_response is None:
+            bot.sendMessage(chat_id, text="Sorry, I can't retrieve whois information about: {}.".format(domain))
+            return
+        bot.sendMessage(chat_id, text='Whois: {}'.format(whois_response.text))
+
+    def setup(self):
+        self.dispatcher.addHandler(CommandHandler("whois", self.whois_handler, pass_args=True))
 
 
-def setup(dispatcher):
-    dispatcher.addHandler(CommandHandler("whois", whois_hndlr, pass_args=True))
+def initialize(dispatcher):
+    return WhoisPlugin(dispatcher)

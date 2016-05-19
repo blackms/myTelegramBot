@@ -1,4 +1,3 @@
-from myTelegramBot.modules.whois_plugin import whois_hndlr
 from pluginbase import PluginBase
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from functools import partial
@@ -39,8 +38,10 @@ class MyTelegramBot(object):
 
     def __load_plugins(self):
         for plugin in self.source.list_plugins():
-            plugin = self.source.load_plugin(plugin)
-            plugin.setup(self.dispatcher)
+            base = self.source.load_plugin(plugin)
+            plugin = base.initialize(self.dispatcher)
+            # Add Handler to Telegram Command
+            plugin.setup()
 
     @staticmethod
     def start(bot, update):
