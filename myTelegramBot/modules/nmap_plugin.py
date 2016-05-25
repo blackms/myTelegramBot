@@ -1,12 +1,15 @@
+from argparse import ArgumentParser, ArgumentError
+
+from nmap import PortScanner
 from telegram.ext import CommandHandler
 from telegram.ext.dispatcher import run_async
-from argparse import ArgumentParser, ArgumentError
-from nmap import PortScanner
+
+from ..PluginSystem import BasePlugin
 
 
-class NmapPlugin(object):
-    def __init__(self, dispatcher):
-        self.dispatcher = dispatcher
+class NmapPlugin(BasePlugin):
+    def __init__(self, *args, **kwargs):
+        super(NmapPlugin, self).__init__(*args, **kwargs)
 
     @staticmethod
     def __check_for_idiot_friends(text):
