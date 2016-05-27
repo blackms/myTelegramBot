@@ -1,7 +1,7 @@
 from pluginbase import PluginBase
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from functools import partial
-from session import SessionManager
+from .session import SessionManager
 import logging
 import os
 
