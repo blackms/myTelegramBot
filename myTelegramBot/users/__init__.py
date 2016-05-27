@@ -1,8 +1,7 @@
-from myTelegramBot.auth_methods import Md5hashFile
 
 
 class User(object):
-    def __init__(self, username, password, auth_method=Md5hashFile):
+    def __init__(self, username, password, auth_method):
         self.username = username
         self.password = password
         self.auth_method = auth_method

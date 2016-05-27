@@ -28,6 +28,7 @@ class MyTelegramBot(object):
         self.token = token
         self.updater = Updater(token)
         self.dispatcher = self.updater.dispatcher
+        self.authenticator = None
 
         # Initialize session Manager
         self.__session_manager = SessionManager(name='myTelegramBotSessionManager')
@@ -46,6 +47,10 @@ class MyTelegramBot(object):
             plugin = base.initialize(self.dispatcher)
             # Add Handler to Telegram Command
             plugin.setup()
+
+    def set_auth_method(self, *args, **kwargs):
+        auth = kwargs.pop('auth_method')
+        self.authenticator = auth(*args, **kwargs)
 
     @staticmethod
     def start(bot, update):

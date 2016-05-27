@@ -11,7 +11,7 @@ class BaseAuthMethod(object):
     def __init__(self, *args, **kwargs):
         pass
 
-    def find_user(self, *args, **kwargs):
+    def exists(self, *args, **kwargs):
         raise NotImplementedError
 
     def compare_password(self, *args, **kwargs):
@@ -41,11 +41,11 @@ class Md5hashFile(BaseAuthMethod):
     def __str_to_md5(string):
         return hashlib.md5(string).hexdigest()
 
-    def find_user(self, username):
+    def exists(self, username):
         u, p = username, self.user_dict[username]
         if u is not None:
-            return User(username, p)
-        return None
+            return True
+        return False
 
     @property
     def file_path(self):
