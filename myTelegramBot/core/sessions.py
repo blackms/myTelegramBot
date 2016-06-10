@@ -1,6 +1,6 @@
 from uuid import uuid1
-from ..users import User
-from ..Exceptions import NoUserAssignedToSession
+from myTelegramBot.core.users import User
+from myTelegramBot.Exceptions import NoUserAssignedToSession
 
 
 class SessionManager(object):

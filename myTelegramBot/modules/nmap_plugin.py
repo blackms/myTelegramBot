@@ -4,7 +4,7 @@ from nmap import PortScanner
 from telegram.ext import CommandHandler
 from telegram.ext.dispatcher import run_async
 
-from ..PluginSystem import BasePlugin
+from myTelegramBot.PluginSystem import BasePlugin
 
 
 class NmapPlugin(BasePlugin):
@@ -72,7 +72,7 @@ class NmapPlugin(BasePlugin):
         bot.sendMessage(chat_id, text=msg)
 
     def setup(self):
-        self.dispatcher.addHandler(CommandHandler("scan", self.scan, pass_args=True))
+        self.dispatcher.add_handler(CommandHandler("scan", self.scan, pass_args=True))
 
 
 def initialize(dispatcher):

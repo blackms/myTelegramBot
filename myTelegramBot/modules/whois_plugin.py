@@ -18,7 +18,7 @@ class WhoisPlugin(object):
         bot.sendMessage(chat_id, text='Whois: {}'.format(whois_response.text))
 
     def setup(self):
-        self.dispatcher.addHandler(CommandHandler("whois", self.whois_handler, pass_args=True))
+        self.dispatcher.add_handler(CommandHandler("whois", self.whois_handler, pass_args=True))
 
 
 def initialize(dispatcher):

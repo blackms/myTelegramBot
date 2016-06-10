@@ -2,7 +2,7 @@ import os
 import hashlib
 import abc
 from myTelegramBot.Exceptions import UserNotFound
-from myTelegramBot.users import User
+from myTelegramBot.core.users import User
 
 
 class BaseAuthMethod(object):

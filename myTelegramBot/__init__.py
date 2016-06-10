@@ -1,9 +1,11 @@
-from pluginbase import PluginBase
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from functools import partial
-from .session import SessionManager
 import logging
 import os
+from functools import partial
+
+from pluginbase import PluginBase
+from telegram.ext import Updater, CommandHandler
+
+from myTelegramBot.core import SessionManager
 
 # Initialize plugin system
 plugin_base = PluginBase(package='myTelegramBot.plugins')
@@ -30,7 +32,7 @@ class MyTelegramBot(object):
         self.dispatcher = self.updater.dispatcher
         self.authenticator = None
 
-        # Initialize session Manager
+        # Initialize core Manager
         self.__session_manager = SessionManager(name='myTelegramBotSessionManager')
 
         # Load Plugins
@@ -38,8 +40,8 @@ class MyTelegramBot(object):
         self.__load_plugins()
 
         # Initialize main handlers
-        self.dispatcher.addHandler(CommandHandler("start", self.start))
-        self.dispatcher.addErrorHandler(self.error)
+        self.dispatcher.add_handler(CommandHandler("start", self.start))
+        self.dispatcher.add_error_handler(self.error)
 
     def __load_plugins(self):
         for plugin in self.source.list_plugins():
