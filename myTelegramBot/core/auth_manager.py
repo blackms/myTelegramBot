@@ -2,7 +2,31 @@ import os
 import hashlib
 import abc
 from myTelegramBot.Exceptions import UserNotFound
-from myTelegramBot.core.users import User
+
+
+class BasicUser(object):
+    def __init__(self, username, user_id, password=None):
+        self.username = username
+        self.user_id = user_id
+        self.password = password
+
+    def __str__(self):
+        return 'user: {}'.format(self.username)
+
+
+class NormalUser(BasicUser):
+    def __init__(self, *args, **kwargs):
+        super(NormalUser, self).__init__(*args, **kwargs)
+
+
+class PowerUser(BasicUser):
+    def __init__(self, *args, **kwargs):
+        super(PowerUser, self).__init__(*args, **kwargs)
+
+
+class AdminUser(BasicUser):
+    def __init__(self, *args, **kwargs):
+        super(AdminUser, self).__init__(*args, **kwargs)
 
 
 class BaseAuthMethod(object):
@@ -25,8 +49,8 @@ class BaseAuthMethod(object):
 
 
 class Md5hashFile(BaseAuthMethod):
-    def __init__(self):
-        self._file_path = None
+    def __init__(self, file_path=None):
+        self._file_path = file_path
         self.user_dict = {}
         self.__load_user_file()
         super(BaseAuthMethod, self).__init__()
@@ -34,16 +58,15 @@ class Md5hashFile(BaseAuthMethod):
     def __load_user_file(self):
         with open(self.file_path, 'r') as user_file:
             for user in user_file:
-                u, p = user.split(':')
-                self.user_dict[u] = p
+                u, p, l = user.split(':')
+                self.user_dict[u] = {'password': p, 'level': l}
 
     @staticmethod
     def __str_to_md5(string):
         return hashlib.md5(string).hexdigest()
 
     def exists(self, username):
-        u, p = username, self.user_dict[username]
-        if u is not None:
+        if username in self.user_dict.keys():
             return True
         return False
 
@@ -59,7 +82,7 @@ class Md5hashFile(BaseAuthMethod):
 
     def compare_password(self, user, clear_text_password):
         hashed_password = self.__str_to_md5(clear_text_password)
-        if self.user_dict[user] == hashed_password:
+        if self.user_dict[user]['password'] == hashed_password:
             return True
         return False
 
@@ -68,8 +91,3 @@ class Md5hashFile(BaseAuthMethod):
 
     def delete_user(self, *args, **kwargs):
         super(Md5hashFile, self).delete_user()
-
-
-
-
-

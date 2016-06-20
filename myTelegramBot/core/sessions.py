@@ -1,6 +1,6 @@
 from uuid import uuid1
-from myTelegramBot.core.users import User
 from myTelegramBot.Exceptions import NoUserAssignedToSession
+from myTelegramBot.core.auth_manager import *
 
 
 class SessionManager(object):
@@ -24,11 +24,15 @@ class SessionManager(object):
         except NameError:
             raise Exception('Session not found: {}'.format(session))
 
+    def get_user_session(self, user_id):
+        session = [x.user for x in self.sessions.values() if x.user.user_id == user_id]
+        return session
+
 
 class Session(object):
     def __init__(self, user):
         self.id = uuid1()
-        assert isinstance(user, User), NoUserAssignedToSession(
+        assert isinstance(user, (AdminUser, NormalUser, PowerUser)), NoUserAssignedToSession(
             message="Expected User, received: {}".format(type(user))
         )
         self.user = user

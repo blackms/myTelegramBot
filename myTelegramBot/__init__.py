@@ -5,7 +5,8 @@ from functools import partial
 from pluginbase import PluginBase
 from telegram.ext import Updater, CommandHandler
 
-from myTelegramBot.core import SessionManager
+from myTelegramBot.core.sessions import SessionManager, Session
+from myTelegramBot.core.auth_manager import *
 
 # Initialize plugin system
 plugin_base = PluginBase(package='myTelegramBot.plugins')
@@ -33,7 +34,7 @@ class MyTelegramBot(object):
         self.authenticator = None
 
         # Initialize core Manager
-        self.__session_manager = SessionManager(name='myTelegramBotSessionManager')
+        self._session_manager = SessionManager(name='myTelegramBotSessionManager')
 
         # Load Plugins
         self.source = plugin_base.make_plugin_source(searchpath=[get_path('./modules')])
@@ -46,13 +47,47 @@ class MyTelegramBot(object):
     def __load_plugins(self):
         for plugin in self.source.list_plugins():
             base = self.source.load_plugin(plugin)
-            plugin = base.initialize(self.dispatcher)
+            plugin = base.initialize(dispatcher=self.dispatcher, sessions_manager=self._session_manager)
             # Add Handler to Telegram Command
             plugin.setup()
 
-    def set_auth_method(self, *args, **kwargs):
-        auth = kwargs.pop('auth_method')
-        self.authenticator = auth(*args, **kwargs)
+    def login(self, bot, update, args):
+        """
+        Callback method for login command.
+        :param bot:
+        :param update:
+        :param args:
+        :type bot: telegram.bot.Bot
+        :type update: telegram.update.Update
+        :type args: list
+        :return:
+        """
+        chat_id = update.message.chat_id
+        user_id = update.message.from_user.id
+        u, p = args[0], args[1]
+        auth_file = '{}/stuff/auth.ini'.format(os.getcwd())
+        auth_method = Md5hashFile(file_path=auth_file)
+        if auth_method.exists(u):
+            if not auth_method.compare_password(user=u, clear_text_password=p):
+                bot.sendMessage(chat_id, 'Password mismatch. Sorry.')
+                return
+        else:
+            bot.sendMessage(chat_id, 'Username not found. Sorry.')
+            return
+        # User is valid, map to correct permission object
+        user_obj = auth_method.user_dict[u]
+        if user_obj['level'] == '1':
+            obj = NormalUser(username=u, user_id=user_id)
+        elif user_obj['level'] == '2':
+            obj = PowerUser(username=u, user_id=user_id)
+        elif user_obj['level'] == '3':
+            obj = AdminUser(username=u, user_id=user_id)
+        else:
+            raise UserNotFound('User with name: {} not found.'.format(u))
+        _session = Session(user=obj)
+        # Register new session into session manager
+        bot.sendMessage(chat_id, 'Registered user: {} to session: {}'.format(u, _session.id))
+        self._session_manager.add_user_session(_session)
 
     @staticmethod
     def start(bot, update):
@@ -68,6 +103,9 @@ class MyTelegramBot(object):
         logger.warn('Update "%s" caused error "%s"' % (update, error))
 
     def start_bot(self):
+        self.dispatcher.add_handler(
+            CommandHandler(command='login', callback=self.login, pass_args=True)
+        )
         self.updater.start_polling()
         self.updater.idle()
 

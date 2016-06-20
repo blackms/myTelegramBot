@@ -1,3 +1,4 @@
+Crypto
 python-whois
 python-telegram-bot
 pluginbase

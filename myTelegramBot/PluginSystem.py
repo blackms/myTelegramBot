@@ -2,9 +2,10 @@ from .Exceptions import DispatcherCannotBeNullException
 
 
 class BasePlugin(object):
-    def __init__(self, dispatcher=None):
-        assert DispatcherCannotBeNullException, dispatcher is None
-        self.dispatcher = dispatcher
+    def __init__(self, *args, **kwargs):
+        if 'dispatcher' not in kwargs.keys():
+            raise DispatcherCannotBeNullException
+        self.dispatcher = kwargs.pop('dispatcher')
 
     def setup(self):
         raise NotImplemented

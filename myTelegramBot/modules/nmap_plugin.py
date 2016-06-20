@@ -75,5 +75,5 @@ class NmapPlugin(BasePlugin):
         self.dispatcher.add_handler(CommandHandler("scan", self.scan, pass_args=True))
 
 
-def initialize(dispatcher):
-    return NmapPlugin(dispatcher)
+def initialize(*args, **kwargs):
+    return NmapPlugin(*args, **kwargs)

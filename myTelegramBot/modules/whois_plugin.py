@@ -1,10 +1,11 @@
 import whois
 from telegram.ext import CommandHandler
+from myTelegramBot.PluginSystem import BasePlugin
 
 
-class WhoisPlugin(object):
-    def __init__(self, dispatcher):
-        self.dispatcher = dispatcher
+class WhoisPlugin(BasePlugin):
+    def __init__(self, *args, **kwargs):
+        super(WhoisPlugin, self).__init__(*args, **kwargs)
 
     @staticmethod
     def whois_handler(bot, update, args):
@@ -21,5 +22,5 @@ class WhoisPlugin(object):
         self.dispatcher.add_handler(CommandHandler("whois", self.whois_handler, pass_args=True))
 
 
-def initialize(dispatcher):
-    return WhoisPlugin(dispatcher)
+def initialize(*args, **kwargs):
+    return WhoisPlugin(*args, **kwargs)
