@@ -232,7 +232,10 @@ class LunchPlugin(BasePlugin):
     def add_note(self, bot, update, args):
         chat_id = update.message.chat_id
         note = ' '.join(args)
-        user = update.message.from_user.username
+        if len(update.message.from_user.username) <= 0:
+            user = update.message.from_user.id
+        else:
+            user = update.message.from_user.username
 
         self.reservations[user].append('Note: {}'.format(note))
         bot.sendMessage(chat_id, 'Riepilogo prenotazione:\n{}'.format(
@@ -244,6 +247,14 @@ class LunchPlugin(BasePlugin):
         chat_id = update.message.chat_id
         self.reservations = {}
         bot.sendMessage(chat_id, 'Prenotazioni rimosse.')
+
+    def register_me(self, bot, update):
+        chat_id = update.message.chat_id
+        user_id = update.message.from_user.id
+
+    def unregister_me(self, bot, update):
+        chat_id = update.message.chat_id
+        user_id = update.message.from_user.id
 
     def setup(self):
         self.dispatcher.add_handler(
@@ -270,6 +281,14 @@ class LunchPlugin(BasePlugin):
         )
         self.dispatcher.add_handler(
             CommandHandler('menu', self.print_dishes)
+        )
+
+        self.dispatcher.add_handler(
+            CommandHandler('registrami', self.register_me, pass_args=False)
+        )
+
+        self.dispatcher.add_handler(
+            CommandHandler('toglimi', self.unregister_me, pass_args=False)
         )
 
 
