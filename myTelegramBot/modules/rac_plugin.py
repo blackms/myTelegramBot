@@ -3,6 +3,8 @@ from __future__ import print_function
 from telegram.ext import MessageHandler, Filters
 from textblob import TextBlob
 
+from myTelegramBot.libs.gcal import GoogleCalendar
+
 from myTelegramBot.PluginSystem import BasePlugin
 
 
