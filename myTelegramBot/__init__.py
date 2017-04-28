@@ -1,12 +1,11 @@
 import logging
-import os
 from functools import partial
 
 from pluginbase import PluginBase
 from telegram.ext import Updater, CommandHandler
 
-from myTelegramBot.core.sessions import SessionManager, Session
 from myTelegramBot.core.auth_manager import *
+from myTelegramBot.core.sessions import SessionManager, Session
 
 # Initialize plugin system
 plugin_base = PluginBase(package='myTelegramBot.plugins')
