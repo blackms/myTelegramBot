@@ -1,71 +1,77 @@
-from __future__ import print_function
-import httplib2
+import datetime
 import os
+from abc import ABCMeta, abstractmethod
 
+import httplib2
 from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
-import datetime
+
+class Calendar(object):
+    __metaclass__ = ABCMeta
+
+    def __init__(self):
+        pass
+
+    @abstractmethod
+    def get_events(self):
+        raise NotImplementedError('This method must be implemented.')
+
+    @abstractmethod
+    def add_event(self):
+        raise NotImplementedError('This method must be implemented.')
+
+    @abstractmethod
+    def delete_event(self):
+        raise NotImplementedError('This method must be Implemented.')
 
 
-SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
-CLIENT_SECRET_FILE = 'client_secret.json'
-APPLICATION_NAME = 'Google Calendar API Python Quickstart'
+class GoogleCalendar(Calendar):
+    def __init__(self, scopes='https://www.googleapis.com/auth/calendar', client_secret_file='client_secret.json',
+                 application_name='Rac Grosseto Bot', calendar_id='ha1i5mboaknnd8jos469thnjuk@group.calendar.google.com'):
+        """
 
+        :param scopes: Google API Endpoint
+        :type scopes: str
+        :param client_secret_file: File containing OAuth2 Information
+        :type client_secret_file: str
+        :param application_name: Name of the Application
+        :type application_name: str
+        """
+        self.scopes = scopes
+        self.client_secret_file = client_secret_file
+        self.application_name = application_name
+        self.calendar_id = calendar_id
+        self.credentials = self._get_credentials()
+        self.httpHandler = self.credentials.authorize(httplib2.Http())
+        self.service = discovery.build('calendar', 'v3', http=self.httpHandler)
+        super(GoogleCalendar, self).__init__()
 
-def get_credentials():
-    """Gets valid user credentials from storage.
-
-    If nothing has been stored, or if the stored credentials are invalid,
-    the OAuth2 flow is completed to obtain the new credentials.
-
-    Returns:
-        Credentials, the obtained credential.
-    """
-    home_dir = os.path.expanduser('~')
-    credential_dir = os.path.join(home_dir, '.credentials')
-    if not os.path.exists(credential_dir):
-        os.makedirs(credential_dir)
-    credential_path = os.path.join(credential_dir,
-                                   'calendar-python-quickstart.json')
-
-    store = Storage(credential_path)
-    credentials = store.get()
-    if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
-        flow.user_agent = APPLICATION_NAME
-        if flags:
-            credentials = tools.run_flow(flow, store, flags)
-        else: # Needed only for compatibility with Python 2.6
+    def _get_credentials(self):
+        home_dir = os.path.expanduser('~')
+        credential_dir = os.path.join(home_dir, '.credentials')
+        if not os.path.exists(credential_dir):
+            os.makedirs(credential_dir)
+        credential_path = os.path.join(credential_dir, 'calendar-python-quickstart.json')
+        store = Storage(credential_path)
+        credentials = store.get()
+        if not credentials or credentials.invalid:
+            flow = client.flow_from_clientsecrets(self.client_secret_file, self.scopes)
+            flow.user_agent = self.application_name
             credentials = tools.run(flow, store)
-        print('Storing credentials to ' + credential_path)
-    return credentials
+        return credentials
 
-def main():
-    """Shows basic usage of the Google Calendar API.
+    def add_event(self):
+        pass
 
-    Creates a Google Calendar API service object and outputs a list of the next
-    10 events on the user's calendar.
-    """
-    credentials = get_credentials()
-    http = credentials.authorize(httplib2.Http())
-    service = discovery.build('calendar', 'v3', http=http)
+    def delete_event(self):
+        pass
 
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    print('Getting the upcoming 10 events')
-    eventsResult = service.events().list(
-        calendarId='primary', timeMin=now, maxResults=10, singleEvents=True,
-        orderBy='startTime').execute()
-    events = eventsResult.get('items', [])
-
-    if not events:
-        print('No upcoming events found.')
-    for event in events:
-        start = event['start'].get('dateTime', event['start'].get('date'))
-        print(start, event['summary'])
-
-
-if __name__ == '__main__':
-    main()
+    def get_events(self):
+        now = datetime.datetime.utcnow().isoformat() + 'Z'
+        events_result = self.service.events().list(
+            calendarId=self.calendar_id, timeMin=now, maxResults=10, singleEvents=True, orderBy='startTime').execute()
+        events = events_result.get('items', [])
+        return events
