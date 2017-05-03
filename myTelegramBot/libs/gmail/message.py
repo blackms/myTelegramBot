@@ -1,9 +1,9 @@
 import datetime
 import email
+import os
 import re
 import time
-import os
-from email.header import decode_header, make_header
+from email.header import decode_header
 from imaplib import ParseFlags
 
 
@@ -33,7 +33,7 @@ class Message(object):
         self.thread_id = None
         self.thread = []
         self.message_id = None
- 
+
         self.attachments = None
 
     def is_read(self):
@@ -131,7 +131,7 @@ class Message(object):
     def parse_subject(encoded_subject):
         dh = decode_header(encoded_subject)
         default_charset = 'ASCII'
-        return ''.join([ unicode(t[0], t[1] or default_charset) for t in dh ])
+        return ''.join([unicode(t[0], t[1] or default_charset) for t in dh])
 
     def parse(self, raw_message):
         raw_headers = raw_message[0]
@@ -166,16 +166,16 @@ class Message(object):
         if re.search(r'X-GM-MSGID (\d+)', raw_headers):
             self.message_id = re.search(r'X-GM-MSGID (\d+)', raw_headers).groups(1)[0]
 
-        
         # Parse attachments into attachment objects array for this message
         self.attachments = [
             Attachment(attachment) for attachment in self.message._payload
-                if not isinstance(attachment, basestring) and attachment.get('Content-Disposition') is not None
+            if not isinstance(attachment, basestring) and attachment.get('Content-Disposition') is not None
         ]
 
     def fetch(self):
         if not self.message:
-            response, results = self.gmail.imap.uid('FETCH', self.uid, '(BODY.PEEK[] FLAGS X-GM-THRID X-GM-MSGID X-GM-LABELS)')
+            response, results = self.gmail.imap.uid('FETCH', self.uid,
+                                                    '(BODY.PEEK[] FLAGS X-GM-THRID X-GM-MSGID X-GM-LABELS)')
 
             self.parse(results[0])
 
@@ -213,13 +213,12 @@ class Message(object):
 
 
 class Attachment:
-
     def __init__(self, attachment):
         self.name = attachment.get_filename()
         # Raw file data
         self.payload = attachment.get_payload(decode=True)
         # Filesize in kilobytes
-        self.size = int(round(len(self.payload)/1000.0))
+        self.size = int(round(len(self.payload) / 1000.0))
 
     def save(self, path=None):
         if path is None:
