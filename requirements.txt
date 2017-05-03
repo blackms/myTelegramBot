@@ -1,3 +1,5 @@
+telegram
+textblob
 Crypto
 python-whois
 python-telegram-bot
